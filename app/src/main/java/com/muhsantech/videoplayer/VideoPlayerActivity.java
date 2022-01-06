@@ -1,61 +1,47 @@
 package com.muhsantech.videoplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.WindowManager;
 import android.widget.MediaController;
-import android.widget.VideoView;
+import com.muhsantech.videoplayer.databinding.ActivityVideoPlayerBinding;
+
+import java.util.Objects;
 
 public class VideoPlayerActivity extends AppCompatActivity {
 
-    VideoView videoView;
+    ActivityVideoPlayerBinding binding;
     int position = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_player);
-
-        videoView = findViewById(R.id.myPlayer);
-
+        binding = ActivityVideoPlayerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        Objects.requireNonNull(getSupportActionBar()).hide();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         position = getIntent().getIntExtra("position", -1);
-
         PlayerVideo();
-
     }
-
+    // Video Player Function Runner and ManageVideo // Used MediaController
     private void PlayerVideo() {
-
         MediaController mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
+        mediaController.setAnchorView(binding.myPlayer);
 
-        videoView.setMediaController(mediaController);
-        videoView.setVideoPath(String.valueOf(MainActivity.fileArrayList.get(position)));
-        videoView.requestFocus();
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                videoView.start();
-            }
+        binding.myPlayer.setMediaController(mediaController);
+        binding.myPlayer.setVideoPath(String.valueOf(MainActivity.fileArrayList.get(position)));
+        binding.myPlayer.requestFocus();
+
+        binding.myPlayer.setOnPreparedListener(mediaPlayer -> binding.myPlayer.start());
+
+        binding.myPlayer.setOnCompletionListener(mediaPlayer -> {
+            binding.myPlayer.setVideoPath(String.valueOf(MainActivity.fileArrayList.get(position = position +1)));
+            binding.myPlayer.start();
         });
-
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                videoView.setVideoPath(String.valueOf(MainActivity.fileArrayList.get(position = position +1)));
-                videoView.start();
-            }
-        });
-
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        videoView.stopPlayback();
+        binding.myPlayer.stopPlayback();
     }
 }

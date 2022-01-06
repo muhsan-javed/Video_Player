@@ -8,30 +8,35 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
-public class MyAdapter extends RecyclerView.Adapter<VideoHolder> {
+public class MyAdapter extends RecyclerView.Adapter<VideoHolder> implements MyAdapterFilter {
 
     Context context;
     ArrayList<File> videoArrayList;
+    ArrayList<File> videoArrayListFiltered;
 
     public MyAdapter(Context context, ArrayList<File> videoArrayList) {
         this.context = context;
         this.videoArrayList = videoArrayList;
+        this.videoArrayListFiltered = videoArrayList;
     }
 
     @NonNull
     @Override
     public VideoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_item, parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_item, parent, false);
         return new VideoHolder(view);
     }
 
@@ -41,7 +46,6 @@ public class MyAdapter extends RecyclerView.Adapter<VideoHolder> {
         holder.txtFileName.setText(MainActivity.fileArrayList.get(position).getName());
         Bitmap bitmapThumbnail = ThumbnailUtils.createVideoThumbnail(videoArrayList.get(position).getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
         holder.imageThumbnail.setImageBitmap(bitmapThumbnail);
-
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -50,17 +54,67 @@ public class MyAdapter extends RecyclerView.Adapter<VideoHolder> {
                 context.startActivity(intent);
             }
         });
-
     }
 
     @Override
     public int getItemCount() {
-        if (videoArrayList.size() > 0){
-            return videoArrayList.size();
-        }else {
-            return 1;
-        }
+        return videoArrayListFiltered.size();
+//        if (videoArrayList.size() > 0){
+//            return videoArrayList.size();
+//        }else {
+//            return 1;
+//        }
     }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+
+    @NonNull
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+
+                FilterResults filterResults = new FilterResults();
+
+                if (charSequence == null || charSequence.length() == 0) {
+                    filterResults.count = videoArrayList.size();
+                    filterResults.values = videoArrayList;
+                } else {
+                    List<File> resultsModel = new ArrayList<>();
+                    String searchStr = charSequence.toString().toLowerCase();
+
+                    for (File itemsModel : videoArrayList) {
+                        if (itemsModel.getName().toLowerCase().contains(searchStr)) {
+                            resultsModel.add(itemsModel);
+                        }
+
+                        filterResults.count = resultsModel.size();
+                        filterResults.values = resultsModel;
+
+                    }
+
+                }
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+
+                videoArrayListFiltered = (ArrayList<File>) filterResults.values;
+
+                MainActivity.fileArrayList = (ArrayList<File>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
+        return filter;
+    }
+
 }
 
 class VideoHolder extends RecyclerView.ViewHolder{
