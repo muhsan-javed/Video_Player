@@ -8,29 +8,26 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
-public class MyAdapter extends RecyclerView.Adapter<VideoHolder> implements MyAdapterFilter {
+public class MyAdapter extends RecyclerView.Adapter<VideoHolder> {
 
     Context context;
     ArrayList<File> videoArrayList;
-    ArrayList<File> videoArrayListFiltered;
+//    ArrayList<File> videoArrayListFiltered; //-- > Search Function Filter
 
     public MyAdapter(Context context, ArrayList<File> videoArrayList) {
         this.context = context;
         this.videoArrayList = videoArrayList;
-        this.videoArrayListFiltered = videoArrayList;
+//        this.videoArrayListFiltered = videoArrayList; //-- > Search Function Filter
     }
 
     @NonNull
@@ -46,36 +43,31 @@ public class MyAdapter extends RecyclerView.Adapter<VideoHolder> implements MyAd
         holder.txtFileName.setText(MainActivity.fileArrayList.get(position).getName());
         Bitmap bitmapThumbnail = ThumbnailUtils.createVideoThumbnail(videoArrayList.get(position).getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
         holder.imageThumbnail.setImageBitmap(bitmapThumbnail);
-        holder.mCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, VideoPlayerActivity.class);
-                intent.putExtra("position", holder.getAdapterPosition());
-                context.startActivity(intent);
-            }
+        holder.mCardView.setOnClickListener(view -> {
+            Intent intent = new Intent(context, VideoPlayerActivity.class);
+            intent.putExtra("position", holder.getAdapterPosition());
+            context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return videoArrayListFiltered.size();
-//        if (videoArrayList.size() > 0){
-//            return videoArrayList.size();
-//        }else {
-//            return 1;
-//        }
+//        return videoArrayListFiltered.size(); // -- > Search Function Filter
+        if (videoArrayList.size() > 0){
+            return videoArrayList.size();
+        }else {
+            return 1;
+        }
     }
 
-    @Override
+    // -- > Search Function Filter
+  /*@Override
     public long getItemId(int position) {
         return position;
     }
-
-
     @NonNull
     @Override
     public Filter getFilter() {
-
         Filter filter = new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
@@ -114,7 +106,7 @@ public class MyAdapter extends RecyclerView.Adapter<VideoHolder> implements MyAd
         };
         return filter;
     }
-
+*/
 }
 
 class VideoHolder extends RecyclerView.ViewHolder{

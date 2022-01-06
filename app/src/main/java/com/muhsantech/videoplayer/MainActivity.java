@@ -9,8 +9,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Toast;
 import com.muhsantech.videoplayer.databinding.ActivityMainBinding;
 
@@ -40,7 +38,11 @@ public class MainActivity extends AppCompatActivity {
         binding.listVideoRecyclerView.setLayoutManager(manager);
         permissionForVideo();
 
-        binding.edSearch.addTextChangedListener(new TextWatcher() {
+        //SearchBTN(); //-- > Search Function Filter
+    }
+    //-- > Search Function Filter
+    /*void SearchBTN(){
+        //binding.edSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -57,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
+
     // This Function User asking Permissions
     private void permissionForVideo() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
